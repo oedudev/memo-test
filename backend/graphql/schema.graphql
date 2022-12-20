@@ -1,0 +1,52 @@
+"A datetime string with format `Y-m-d H:i:s`, e.g. `2018-05-23 13:43:32`."
+scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTime")
+
+type MemoTestCard {
+    id: ID!
+    url: String!
+    memo_test: [MemoTest!] @belongsTo
+}
+
+type MemoTest {
+    id: ID!
+    name: String!
+    cards: [MemoTestCard!] @hasMany
+}
+
+type GameSession {
+    id: ID!
+    retries: Int!
+    number_of_pairs: Int!
+    state: String!
+    memo_test: MemoTest!
+}
+
+input CreateMemoTestCardHasMany {
+    create: [CreateMemoTestCardInput!]
+}
+
+input CreateMemoTestCardInput {
+    url: String!
+}
+
+input CreateMemoTestInput {
+    name: String!
+    cards: CreateMemoTestCardHasMany
+}
+
+type Mutation {
+    createGameSession(memoTestId: Int!, retries: Int!, number_of_pairs: Int!, state: String!): GameSession @create
+    createMemoTest(input: CreateMemoTestInput! @spread): MemoTest @create
+    deleteMemoTest(id: ID!): MemoTest @delete
+    deleteMemoTestCard(id: ID!): MemoTestCard @delete
+    updateGameSession(id: ID!, retries: Int!): GameSession @update
+    endGameSession(id: ID!): GameSession
+    addCardToMemoTest(memo_test_id: Int!, url: String!): MemoTest
+    createGameSession(memo_test_id: Int!, retries: Int!, number_of_pairs: Int!, state: String!): GameSession
+}
+
+type Query {
+    getAllMemoTests: [MemoTest!]! @all
+    getMemoTestById(id: ID! @eq): MemoTest @find
+    getGameSessionById(id: ID! @eq): GameSession @find
+}
